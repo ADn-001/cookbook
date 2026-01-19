@@ -2,8 +2,22 @@ const Recipe = require('../models/Recipe');
 const path = require('path');
 const fs = require('fs').promises;
 
-// Helper to get the default image path (relative to public folder)
 const DEFAULT_IMAGE = '/images/default.jpg';
+
+// Helper: converts relative path to full URL
+function getFullImageUrl(relativePath) {
+  if (!relativePath) return `${process.env.BASE_URL}${DEFAULT_IMAGE}`;
+  if (relativePath.startsWith('http')) return relativePath; // already full url (unlikely)
+  return `${process.env.BASE_URL}${relativePath}`;
+}
+
+// Helper: transform a single recipe document (lean or not)
+function transformRecipe(recipe) {
+  if (!recipe) return null;
+  const recipeObj = recipe.toObject ? recipe.toObject() : { ...recipe };
+  recipeObj.image = getFullImageUrl(recipeObj.image);
+  return recipeObj;
+}
 
 exports.createRecipe = async (req, res) => {
   try {
@@ -14,10 +28,8 @@ exports.createRecipe = async (req, res) => {
       return res.status(400).json({ message: 'Name, ingredients, and instructions are required' });
     }
 
-    // Image handling
     let imagePath = DEFAULT_IMAGE;
     if (req.file) {
-      // multer puts file in req.file
       imagePath = `/uploads/${req.file.filename}`;
     }
 
@@ -31,7 +43,8 @@ exports.createRecipe = async (req, res) => {
 
     await recipe.save();
 
-    res.status(201).json(recipe);
+    // Return transformed recipe with full URL
+    res.status(201).json(transformRecipe(recipe));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error creating recipe' });
@@ -42,12 +55,14 @@ exports.getAllRecipes = async (req, res) => {
   try {
     const userId = req.session.userId;
 
-    const recipes = await Recipe.find({ userId }).sort({ createdAt: -1 });
+    const recipes = await Recipe.find({ userId }).sort({ createdAt: -1 }).lean();
 
-    // If user has no recipes, the frontend will usually show the "Add new" button
-    // but we still return empty array here → frontend decides to show welcome or not
-    res.json(recipes);
+    // Transform all recipes to include full image URLs
+    const transformedRecipes = recipes.map(transformRecipe);
+
+    res.json(transformedRecipes);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error fetching recipes' });
   }
 };
@@ -55,14 +70,15 @@ exports.getAllRecipes = async (req, res) => {
 exports.getRecipeById = async (req, res) => {
   try {
     const userId = req.session.userId;
-    const recipe = await Recipe.findOne({ _id: req.params.id, userId });
+    const recipe = await Recipe.findOne({ _id: req.params.id, userId }).lean();
 
     if (!recipe) {
       return res.status(404).json({ message: 'Recipe not found or not owned by user' });
     }
 
-    res.json(recipe);
+    res.json(transformRecipe(recipe));
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: 'Error fetching recipe' });
   }
 };
@@ -78,24 +94,22 @@ exports.updateRecipe = async (req, res) => {
       return res.status(404).json({ message: 'Recipe not found or not owned by user' });
     }
 
-    // Update fields if provided
     if (name) recipe.name = name;
     if (ingredients) recipe.ingredients = ingredients;
     if (instructions) recipe.instructions = instructions;
 
-    // Image update (optional)
     if (req.file) {
-      // Optional: delete old image if not default
       if (recipe.image !== DEFAULT_IMAGE && recipe.image.startsWith('/uploads/')) {
         const oldPath = path.join(__dirname, '..', 'public', recipe.image);
-        await fs.unlink(oldPath).catch(() => {}); // ignore if already deleted
+        await fs.unlink(oldPath).catch(() => {});
       }
       recipe.image = `/uploads/${req.file.filename}`;
     }
 
     await recipe.save();
 
-    res.json(recipe);
+    // Return updated recipe with full URL
+    res.json(transformRecipe(recipe));
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Error updating recipe' });
@@ -111,7 +125,6 @@ exports.deleteRecipe = async (req, res) => {
       return res.status(404).json({ message: 'Recipe not found or not owned by user' });
     }
 
-    // Optional: clean up image file if not default
     if (recipe.image !== DEFAULT_IMAGE && recipe.image.startsWith('/uploads/')) {
       const imagePath = path.join(__dirname, '..', 'public', recipe.image);
       await fs.unlink(imagePath).catch(() => {});
@@ -123,7 +136,7 @@ exports.deleteRecipe = async (req, res) => {
   }
 };
 
-// Called only once during registration (from auth controller)
+// Default recipe creation (no change needed here — frontend won't use it directly)
 exports.createDefaultRecipe = async (userId) => {
   try {
     const defaultRecipe = new Recipe({
@@ -145,6 +158,5 @@ exports.createDefaultRecipe = async (userId) => {
     return defaultRecipe;
   } catch (err) {
     console.error('Failed to create default recipe:', err);
-    // We don't throw — registration should still succeed
   }
 };
