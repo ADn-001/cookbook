@@ -1,0 +1,126 @@
+/* ==========================================
+   Global cookbook / parchment aesthetic
+========================================== */
+
+:root {
+  --parchment:    #fdfd96;     /* light cream / old paper */
+  --beige:        #f5f5dc;     /* card background */
+  --coffee:       #6f4e37;     /* brown buttons */
+  --olive:        #556b2f;     /* accent green */
+  --text-dark:    #2d2d2d;
+  --text-light:   #f5f5f5;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Georgia', serif;
+  background-color: var(--parchment);
+  color: var(--text-dark);
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: var(--olive);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* Container */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Buttons */
+.btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary {
+  background-color: var(--coffee);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #5a3e2c;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--coffee);
+  color: var(--coffee);
+}
+
+.btn-outline:hover {
+  background-color: var(--coffee);
+  color: white;
+}
+
+/* Cards */
+.card {
+  background-color: var(--beige);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+  transition: transform 0.2s;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+/* Forms */
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.form-input,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.form-textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+/* Image preview */
+.image-preview {
+  max-width: 100%;
+  max-height: 320px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid #ddd;
+}
