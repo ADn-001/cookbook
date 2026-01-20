@@ -5,7 +5,6 @@ const { requireAuth } = require('../middleware/authMiddleware');
 const multer = require('multer');
 const path = require('path');
 
-// Multer configuration (moved here for clarity)
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'public/uploads/');

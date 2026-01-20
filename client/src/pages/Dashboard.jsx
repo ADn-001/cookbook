@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Carousel } from 'react-responsive-carousel'
@@ -79,7 +78,7 @@ function Dashboard() {
       </div>
 
       <Carousel
-        showArrows={true}                    // always try to show arrows
+        showArrows={true}                    
         showThumbs={false}
         showStatus={false}
         infiniteLoop={true}
@@ -88,7 +87,7 @@ function Dashboard() {
         transitionTime={550}
         emulateTouch={true}
         centerMode={true}
-        centerSlidePercentage={75}           // adjusted for narrower cards
+        centerSlidePercentage={75}           
         swipeable={true}
         // Make arrows more visible
         renderArrowPrev={(onClickHandler, hasPrev) =>

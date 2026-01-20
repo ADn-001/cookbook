@@ -11,7 +11,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'http://localhost:3000', // ← change to your frontend URL in production
+  origin: 'http://localhost:3000', 
   credentials: true,
 }));
 

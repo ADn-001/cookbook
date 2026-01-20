@@ -13,7 +13,6 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Could redirect to login here, but we'll handle in components
       console.warn('Unauthorized - session likely expired');
     }
     return Promise.reject(error);
